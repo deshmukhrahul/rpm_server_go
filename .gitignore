@@ -1,0 +1,8 @@
+# Compiled binary
+rpm_server_go
+
+# Local configuration file
+repo_config.yaml
+
+# Screenshot
+screenshot.png

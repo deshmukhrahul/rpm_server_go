@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Diff: {{ .To }}</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Fira+Code&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/assets/style.css">
+</head>
+<body>
+    <main>
+        <header>
+            <h1>RPM Diff Viewer</h1>
+            <div class="theme-switch-wrapper">
+                <span>Dark Mode</span>
+                <label class="theme-switch">
+                    <input type="checkbox" id="theme-toggle">
+                    <span class="slider"></span>
+                </label>
+            </div>
+        </header>
+        
+        <div class="breadcrumbs">
+            <a href="/browse/">Home</a> /
+            {{ range .Breadcrumbs }}
+                <a href="{{ .URL }}">{{ .Name }}</a> /
+            {{ end }}
+            <span>Diff</span>
+        </div>
+
+        <h2>Diff: <code>{{ .From }}</code> → <code>{{ .To }}</code></h2>
+        <p class="breadcrumbs" style="margin-top: -1rem; margin-bottom: 2rem;">
+            Generated on: {{ .Timestamp }}
+        </p>
+
+        <div class="diff-container">
+            <div class="diff-column">
+                <h2>Added ({{ len .Added }})</h2>
+                <ul class="diff-list added">
+                    {{ range .Added }}<li>{{ . }}</li>{{ else }}<li class="none">None</li>{{ end }}
+                </ul>
+            </div>
+            <div class="diff-column">
+                <h2>Removed ({{ len .Removed }})</h2>
+                <ul class="diff-list removed">
+                     {{ range .Removed }}<li>{{ . }}</li>{{ else }}<li class="none">None</li>{{ end }}
+                </ul>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        const themeToggle = document.getElementById('theme-toggle');
+        const currentTheme = localStorage.getItem('theme');
+        if (currentTheme) {
+            document.body.classList.add(currentTheme);
+            if (currentTheme === 'dark') { themeToggle.checked = true; }
+        }
+        themeToggle.addEventListener('change', function() {
+            if (this.checked) {
+                document.body.classList.add('dark'); localStorage.setItem('theme', 'dark');
+            } else {
+                document.body.classList.remove('dark'); localStorage.setItem('theme', 'light');
+            }
+        });
+    </script>
+</body>
+</html>

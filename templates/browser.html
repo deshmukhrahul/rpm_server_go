@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Repo Browser</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="preload"
+        href="https://fonts.googleapis.com/css2?family=Anta&family=Roboto+Mono:wght@400;500&display=swap" as="style">
+    <link href="https://fonts.googleapis.com/css2?family=Anta&family=Roboto+Mono:wght@400;500&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="/assets/style.css">
+</head>
+
+<body class="dark">
+    <main>
+        <header>
+            <h1>Repository</h1>
+            <div class="theme-switch-wrapper">
+                <span id="theme-text">Light Mode</span> <!-- Added ID for JavaScript -->
+                <label class="theme-switch">
+                    <input type="checkbox" id="theme-toggle">
+                    <span class="slider"></span>
+                </label>
+            </div>
+        </header>
+
+        <div class="breadcrumbs">
+            <a href="/browse/">Home</a> ›
+            {{ range .Breadcrumbs }}
+            <a href="{{ .URL }}">{{ .Name }}</a> ›
+            {{ end }}
+            <span>{{ .CurrentDir }}</span>
+        </div>
+
+        <!-- NEW: Logic to switch between layouts -->
+        {{ if .IsDashboard }}
+
+        <!-- LAYOUT 1: Card Grid for the Dashboard -->
+        <div class="card-grid">
+            {{ range .Entries }}
+            {{ if .IsActive }}
+            <a href="{{ .URL }}" class="card" title="{{ .Name }}">
+                <div class="card-icon">{{ .Icon }}</div>
+                <div class="card-content">
+                    <span class="card-title">{{ .Name }}</span>
+                    <span class="card-subtitle">{{ .RPMCount }} • Last Modified: {{ .Modified }}</span>
+                </div>
+            </a>
+            {{ else }}
+            <div class="card inactive-card">
+                <div class="card-icon">{{ .Icon }}</div>
+                <div class="card-content">
+                    <span class="card-title">{{ .Name }}</span>
+                    <span class="card-subtitle">{{ .Modified }}</span>
+                </div>
+            </div>
+            {{ end }}
+            {{ end }}
+        </div>
+
+        {{ else }}
+
+        <!-- LAYOUT 2: Modern List for repository contents -->
+        <div class="file-list">
+            <div class="file-list-header">
+                <div>Name</div>
+                <div>Size</div>
+                <div>Modified</div>
+                <div>RPMs</div>
+                <div>Diff</div>
+            </div>
+
+            {{ if not .IsRootListing }}
+            <div class="file-list-row">
+                <div class="file-name">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M19 12H5"></path>
+                        <polyline points="12 5 5 12 12 19"></polyline>
+                    </svg>
+                    <a href="{{ .ParentURL }}">../</a>
+                </div>
+                <div class="file-meta">-</div>
+                <div class="file-meta">-</div>
+                <div class="file-meta">-</div>
+                <div class="file-meta">-</div>
+            </div>
+            {{ end }}
+
+            {{ range .Entries }}
+            <div class="file-list-row">
+                <div class="file-name">
+                    {{ .Icon }}
+                    <a href="{{ .URL }}">{{ .Name }}</a>
+                </div>
+                <div class="file-meta">{{ .Size }}</div>
+                <div class="file-meta">{{ .Modified }}</div>
+                <div class="file-meta">{{ .RPMCount }}</div>
+                <div class="diff-link">
+                    {{ if .HasDiff }}<a href="{{ .DiffURL }}" class="diff-link">View Diff</a>{{ else }}-{{ end }}
+                </div>
+            </div>
+            {{ end }}
+        </div>
+
+        {{ end }}
+    </main>
+
+    <script>
+        const themeToggle = document.getElementById('theme-toggle');
+        const themeText = document.getElementById('theme-text');
+        const body = document.body;
+
+        // This function sets the entire UI state based on a single source of truth.
+        function applyTheme(theme) {
+            const isLight = theme === 'light';
+            body.classList.toggle('dark', !isLight);
+            themeToggle.checked = isLight;
+            themeText.textContent = isLight ? 'Dark Mode' : 'Light Mode';
+        }
+
+        // 1. Immediately on load, determine the theme to apply.
+        //    Priority: localStorage > default ('dark').
+        const savedTheme = localStorage.getItem('theme') || 'dark';
+        applyTheme(savedTheme);
+
+        // 2. Add the event listener for future clicks.
+        themeToggle.addEventListener('change', function () {
+            const newTheme = this.checked ? 'light' : 'dark';
+            localStorage.setItem('theme', newTheme);
+            applyTheme(newTheme);
+        });
+    </script>
+</body>
+
+</html>
